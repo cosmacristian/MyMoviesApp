@@ -1,6 +1,10 @@
 package com.example.mymovies.Models;
 
+import android.content.Context;
+
 import java.sql.Date;
+
+import androidx.annotation.DrawableRes;
 
 public class MovieResults {
     public float popularity;
@@ -18,6 +22,10 @@ public class MovieResults {
     public String overview;
     public String release_date;
 
+    public MovieResults(){
+
+    }
+
     MovieResults(float popularity,int vote_count,boolean video,String poster_path,int id,boolean adult,String backdrop_path,String original_language,String original_title,int[] genre_ids,String title,float vote_average,String overview,String release_date){
         this.popularity = popularity;
         this.vote_count = vote_count;
@@ -34,4 +42,6 @@ public class MovieResults {
         this.overview = overview;
         this.release_date = release_date;
     }
+
+
 }
