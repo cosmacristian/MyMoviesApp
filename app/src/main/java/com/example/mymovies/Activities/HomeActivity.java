@@ -37,6 +37,7 @@ import android.widget.TextView;
 public class HomeActivity extends AppCompatActivity {
 
     //private TextView mTextMessage;
+    Bundle bundle;
     User currentUser;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
@@ -45,10 +46,14 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     fragmentTransaction = fragmentManager.beginTransaction();
                     HomeScreenFragment fragmenthome = new HomeScreenFragment();
+                    bundle = new Bundle();
+                    bundle.putSerializable("currentUser", currentUser);
+                    fragmenthome.setArguments(bundle);
                     fragmentTransaction.replace(R.id.fragment_container, fragmenthome);
                     fragmentTransaction.commit();
 
@@ -56,6 +61,9 @@ public class HomeActivity extends AppCompatActivity {
                 case R.id.navigation_dashboard:
                     fragmentTransaction = fragmentManager.beginTransaction();
                     FavoritesScreenFragment fragmentfav = new FavoritesScreenFragment();
+                    bundle = new Bundle();
+                    bundle.putSerializable("currentUser", currentUser);
+                    fragmentfav.setArguments(bundle);
                     fragmentTransaction.replace(R.id.fragment_container, fragmentfav);
                     fragmentTransaction.commit();
                     return true;
@@ -78,9 +86,12 @@ public class HomeActivity extends AppCompatActivity {
         currentUser = (User) intent.getSerializableExtra("currentUser");
         fragmentManager = getSupportFragmentManager();
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        bundle = new Bundle();
+        bundle.putSerializable("currentUser", currentUser);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         fragmentTransaction = fragmentManager.beginTransaction();
         HomeScreenFragment fragment = new HomeScreenFragment();
+        fragment.setArguments(bundle);
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
     }

@@ -18,7 +18,9 @@ import com.example.mymovies.Api.ApiClient;
 import com.example.mymovies.Api.ApiInterface;
 import com.example.mymovies.Models.MovieResults;
 import com.example.mymovies.Models.PageResult;
+import com.example.mymovies.Models.User;
 import com.example.mymovies.R;
+import com.example.mymovies.SQLiteDB.SQLiteHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,7 @@ import retrofit2.Response;
 
 public class HomeScreenFragment extends Fragment {
     Context actualContext;
+    User currentUser;
     ApiInterface apiInterface;
     List<MovieResults> movies=null;
     GridView gridView;
@@ -38,11 +41,15 @@ public class HomeScreenFragment extends Fragment {
     Button prev;
     int pageNumber = 1;
     int totalPages;
+    SQLiteHelper sqliteHelper;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.homescreen_fragment, container, false);
         actualContext = getContext();
+        currentUser = (User) getArguments().getSerializable(
+                "currentUser");
+        sqliteHelper = new SQLiteHelper(getContext());
         apiInterface = ApiClient.GetClient().create(ApiInterface.class);
         if(savedInstanceState != null){
             return view;
@@ -61,7 +68,8 @@ public class HomeScreenFragment extends Fragment {
                 //book.toggleFavorite();
                 ImageView star = view.findViewById(R.id.imageview_favorite);
                 star.setImageResource(android.R.drawable.btn_star_big_on);
-                // This tells the GridView to redraw itself
+                sqliteHelper.addToFavorites(movie,currentUser);
+                // This tells the GridView to redraw itself//todo add to favrites
                 // in turn calling your BooksAdapter's getView method again for each cell
                 //booksAdapter.notifyDataSetChanged();
                 return true;

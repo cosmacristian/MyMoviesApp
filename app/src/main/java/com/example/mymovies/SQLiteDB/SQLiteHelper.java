@@ -6,17 +6,37 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.mymovies.Models.MovieDetails;
+import com.example.mymovies.Models.MovieResults;
+import com.example.mymovies.Models.PageResult;
 import com.example.mymovies.Models.User;
+
+import java.util.ArrayList;
 
 public class SQLiteHelper extends SQLiteOpenHelper {
     //DATABASE NAME
     public static final String DATABASE_NAME = "mymoviesapp";
 
     //DATABASE VERSION
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 7;
 
     //TABLE NAME
     public static final String TABLE_USERS = "users";
+    public static final String TABLE_FAVMOVIES = "favorites";
+    public static final String TABLE_USER_FAVMOVIES = "users_favorites";
+
+    //TABLE FAVMOVIES COLUMNS
+    public static final String KEY_MOVIEID = "id";
+
+    //COLUMN user name
+    public static final String KEY_MOVIETITLE = "title";
+
+    //COLUMN email
+    public static final String KEY_MOVIEDATE = "date";
+
+    //COLUMN email
+    public static final String KEY_MOVIEIMAGE = "imageurl";
+    //////
 
     //TABLE USERS COLUMNS
     //ID COLUMN @primaryKey
@@ -31,8 +51,11 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     //COLUMN password
     public static final String KEY_PASSWORD = "password";
 
-    //COLUMN imageblob
+    //COLUMN imageurl
     public static final String KEY_IMAGE = "image";
+
+    public static final String KEY_USERID = "userid";
+    public static final String KEY_FAVMOVIEID = "movieid";
 
     //SQL for creating users table
     public static final String SQL_TABLE_USERS = " CREATE TABLE " + TABLE_USERS
@@ -44,6 +67,21 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             +KEY_IMAGE + " TEXT"
             + " );";
 
+    public static final String SQL_TABLE_FAVMOVIES = " CREATE TABLE " + TABLE_FAVMOVIES
+            + " ( "
+            + KEY_MOVIEID + " INTEGER PRIMARY KEY, "
+            + KEY_MOVIETITLE + " TEXT, "
+            + KEY_MOVIEDATE + " TEXT, "
+            +KEY_MOVIEIMAGE + " TEXT"
+            + " );";
+
+    public static final String SQL_TABLE_USER_FAVMOVIES = " CREATE TABLE " + TABLE_USER_FAVMOVIES
+            + " ( "
+            + KEY_USERID + " INTEGER, "
+            + KEY_FAVMOVIEID + " INTEGER, "
+            + "PRIMARY KEY("+KEY_USERID+","+KEY_FAVMOVIEID+")"
+            + " );";
+
     public SQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -51,12 +89,19 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         //Create Table when oncreate gets called
         sqLiteDatabase.execSQL(SQL_TABLE_USERS);
+        sqLiteDatabase.execSQL(SQL_TABLE_FAVMOVIES);
+        sqLiteDatabase.execSQL(SQL_TABLE_USER_FAVMOVIES);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         //drop table to create new one if database version updated
         sqLiteDatabase.execSQL(" DROP TABLE IF EXISTS " + TABLE_USERS);
+        sqLiteDatabase.execSQL(" DROP TABLE IF EXISTS " + TABLE_FAVMOVIES);
+        sqLiteDatabase.execSQL(" DROP TABLE IF EXISTS " + TABLE_USER_FAVMOVIES);
+        sqLiteDatabase.execSQL(SQL_TABLE_USERS);
+        sqLiteDatabase.execSQL(SQL_TABLE_FAVMOVIES);
+        sqLiteDatabase.execSQL(SQL_TABLE_USER_FAVMOVIES);
     }
 
     //using this method we can add users to user table
@@ -78,10 +123,105 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         values.put(KEY_PASSWORD, user.password);
 
         //Put imageURI in  @values
-        values.put(KEY_IMAGE, user.imageURI);
+        values.put(KEY_IMAGE, "");
 
         // insert row
         long todo_id = db.insert(TABLE_USERS, null, values);
+    }
+
+    public void addToFavorites(MovieResults movie,User user) {
+
+        //get writable database
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        //create content values to insert
+        ContentValues values = new ContentValues();
+
+        //Put username in  @values
+        values.put(KEY_MOVIEID, movie.id);
+
+        //Put email in  @values
+        values.put(KEY_MOVIETITLE, movie.title);
+
+        //Put password in  @values
+        values.put(KEY_MOVIEDATE, movie.release_date);
+
+        //Put imageURI in  @values
+        values.put(KEY_MOVIEIMAGE, movie.poster_path);
+
+        // insert row
+        long todo_id = db.insert(TABLE_FAVMOVIES, null, values);
+
+        ContentValues values2 = new ContentValues();
+
+        //Put username in  @values
+        values2.put(KEY_USERID, user.id);
+
+        //Put email in  @values
+        values2.put(KEY_FAVMOVIEID, movie.id);
+
+        // insert row
+        long todo_id2 = db.insert(TABLE_USER_FAVMOVIES, null, values2);
+    }
+
+    public void addToFavorites(MovieDetails movie,User user) {
+
+        //get writable database
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        //create content values to insert
+        ContentValues values = new ContentValues();
+
+        //Put username in  @values
+        values.put(KEY_MOVIEID, movie.id);
+
+        //Put email in  @values
+        values.put(KEY_MOVIETITLE, movie.title);
+
+        //Put password in  @values
+        values.put(KEY_MOVIEDATE, movie.release_date);
+
+        //Put imageURI in  @values
+        values.put(KEY_MOVIEIMAGE, movie.poster_path);
+
+        // insert row
+        long todo_id = db.insert(TABLE_FAVMOVIES, null, values);
+
+        ContentValues values2 = new ContentValues();
+
+        //Put username in  @values
+        values2.put(KEY_USERID, user.id);
+
+        //Put email in  @values
+        values2.put(KEY_FAVMOVIEID, movie.id);
+
+        // insert row
+        long todo_id2 = db.insert(TABLE_USER_FAVMOVIES, null, values2);
+    }
+
+    public boolean deleteFromFavorites(int id,User user)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_FAVMOVIES, KEY_MOVIEID + "=?", new String[]{Integer.toString(id)});
+        return db.delete(TABLE_USER_FAVMOVIES, KEY_MOVIEID + "=? and "+KEY_ID + "=?", new String[]{Integer.toString(id),user.id}) > 0;
+    }
+
+    public PageResult getFavorites(User user){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String QUERY = "SELECT * FROM "+TABLE_USER_FAVMOVIES+" a INNER JOIN "+TABLE_FAVMOVIES+" b ON a."+KEY_FAVMOVIEID+"=b."+KEY_MOVIEID+" WHERE a."+KEY_USERID+"=?";
+
+        Cursor cursor = db.rawQuery(QUERY, new String[]{String.valueOf(user.id)});
+        ArrayList<MovieResults> movies = new ArrayList<MovieResults>();
+        if (cursor != null && cursor.moveToFirst()&& cursor.getCount()>0) {
+            MovieResults movie = new MovieResults(cursor.getInt(1), cursor.getString(5), cursor.getString(3), cursor.getString(4));
+            movies.add(movie);
+            while (cursor.moveToNext()) {
+                movie = new MovieResults(cursor.getInt(1), cursor.getString(5), cursor.getString(3), cursor.getString(4));
+                movies.add(movie);
+            }
+
+        }
+        return new PageResult(1,movies.size(),1,movies);
     }
 
     public User Authenticate(User user) {

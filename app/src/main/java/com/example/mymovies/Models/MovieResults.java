@@ -43,5 +43,10 @@ public class MovieResults {
         this.release_date = release_date;
     }
 
-
+    public MovieResults(int id,String poster_path , String title, String release_date) {
+        this.poster_path = poster_path;
+        this.id = id;
+        this.title = title;
+        this.release_date = release_date;
+    }
 }
